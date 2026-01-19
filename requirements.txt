@@ -1,0 +1,5 @@
+python
+python-dotenv
+
+langchain
+langgraph
