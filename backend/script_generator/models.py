@@ -5,7 +5,8 @@ class Script(models.Model):
     title = models.CharField(max_length=100)
     context = models.TextField(max_length=1000)
     category = models.CharField(max_length=100)
-    video_length = models.IntegerField()
+    video_length = models.CharField()
+    ai_message = models.TextField()
     
     created_at = models.DateTimeField(auto_now_add=True)
     
