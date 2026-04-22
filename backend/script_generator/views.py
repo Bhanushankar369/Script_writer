@@ -24,6 +24,15 @@ class ScriptView(APIView):
                     - category: {request.data.get('category')}
                     
                     They are already provided.
+                    
+                    STRICT RULES:
+                    - Do NOT generate adult, sexual, or explicit content
+                    - Do NOT generate illegal or harmful content
+                    - Avoid sensitive or inappropriate topics
+                    - If user asks such content, politely refuse
+
+                    Instead respond:
+                    "Sorry, I can't help with that request.
 
                     Follow these rules strictly:
 
@@ -119,8 +128,48 @@ class ScriptView(APIView):
         
         score, match = find_similar_context(newContext, oldContexts.keys())
         
+        
+        banned_keywords = [
+            # Adult / Sexual
+            "porn", "porno", "pornography", "sex", "sexual", "nude", "naked", "xxx",
+            "adult", "erotic", "intimate", "explicit", "nsfw", "fetish", "kinky",
+            "bdsm", "seduce", "seduction", "arousal", "orgasm", "masturbate",
+            "prostitute", "escort", "stripper", "lap dance", "onlyfans",
+
+            # Illegal Activities
+            "hack", "hacking", "bypass", "exploit", "crack", "piracy", "torrent",
+            "dark web", "deep web", "illegal", "smuggling", "black market",
+            "counterfeit", "forgery", "scam", "fraud", "identity theft",
+
+            # Drugs / Substances
+            "drugs", "cocaine", "heroin", "meth", "mdma", "lsd", "weed",
+            "marijuana", "ganja", "opium", "drug trafficking", "overdose",
+
+            # Violence / Harm
+            "kill", "murder", "assassinate", "bomb", "explosive", "terrorist",
+            "terrorism", "shoot", "gun attack", "massacre", "kidnap", "abuse",
+            "self harm", "suicide", "hurt others",
+
+            # Cybercrime / Security
+            "phishing", "ddos", "malware", "ransomware", "spyware",
+            "keylogger", "password crack", "brute force", "sql injection",
+            "xss attack", "session hijack",
+
+            # Sensitive / Inappropriate
+            "hate speech", "racist", "extremist", "radicalize", "propaganda",
+            "offensive content", "discrimination",
+
+            # Misc Unsafe
+            "illegal download", "cheat system", "bypass law", "fake identity",
+            "impersonate", "steal data", "data leak", "leak database"
+        ]
+        
+        for word in banned_keywords:
+            if word in newContext:
+                return Response({"Response": "This context contains sensitive and confidential information."})
+        
         if score > 80:
-            response = "This is from your own Database" + oldContexts[match]
+            response = "This is from your own Database Cache. " + oldContexts[match]
         else:
             ai_response = graph_build.invoke({"messages": message})
             ai_ans = ai_response["messages"][-1]
